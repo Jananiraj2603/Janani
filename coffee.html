@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Our Cafeteria</title>
+  <style>
+    /* Basic Styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    .container {
+      width: 90%;
+      margin: 0 auto;
+      max-width: 1200px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5em;
+      color: #4b6584;
+      margin: 20px 0;
+    }
+
+    /* Carousel Styles */
+    .carousel {
+      position: relative;
+      max-width: 100%;
+      margin: 20px auto;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+    .carousel img {
+      width: 100%;
+      display: none;
+    }
+    .carousel img.active {
+      display: block;
+    }
+    .carousel-controls {
+      display: flex;
+      justify-content: space-between;
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      transform: translateY(-50%);
+    }
+    .carousel-controls button {
+      background-color: rgba(0, 0, 0, 0.5);
+      border: none;
+      color: #fff;
+      font-size: 1.5em;
+      cursor: pointer;
+      padding: 10px;
+    }
+
+    /* Joke Section */
+    .joke-container {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: pink;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .joke-container p {
+      font-size: 1.2em;
+      color: #333;
+    }
+    .refresh-joke {
+      background-color: #4b6584;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 1em;
+    }
+
+    /* Quiz Section */
+    .quiz-container {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: yellowgreen;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .quiz-container h2 {
+      font-size: 1.5em;
+      color: #333;
+    }
+    .quiz-container p {
+      font-size: 1.1em;
+      color: #666;
+    }
+    .quiz-container button {
+      background-color: #4b6584;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    .result {
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #20bf6b;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2em;
+      }
+      .carousel-controls button {
+        font-size: 1.2em;
+      }
+      .joke-container p,
+      .quiz-container p {
+        font-size: 1em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <h1>Welcome to Crave Corner</h1>
+
+  <!-- Image Carousel -->
+  <div class="carousel">
+    <img src="sandwich.jpg" class="active" alt="Delicious Sandwich">
+    <img src="fresh juices.jpg" alt="Fresh Juice">
+    <img src="hot coffee.jpg" alt="Hot Coffee">
+    <div class="carousel-controls">
+      <button id="prev">❮</button>
+      <button id="next">❯</button>
+    </div>
+  </div>
+
+  <!-- Joke Section -->
+  <div class="joke-container">
+    <p id="joke">Loading a cafeteria joke...</p>
+    <button class="refresh-joke" onclick="fetchJoke()">Get Another Joke</button>
+  </div>
+
+  <!-- Quiz Section -->
+  <div class="quiz-container">
+    <h2>Cafeteria Quiz</h2>
+    <p id="question">Loading question...</p>
+    <div id="options"></div>
+    <button onclick="nextQuestion()">Next Question</button>
+    <p class="result" id="result"></p>
+  </div>
+</div>
+
+<script>
+  // Image Carousel JavaScript
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.carousel img');
+  
+  document.getElementById('next').addEventListener('click', () => {
+    changeSlide(1);
+  });
+  document.getElementById('prev').addEventListener('click', () => {
+    changeSlide(-1);
+  });
+  
+  function changeSlide(step) {
+    slides[currentSlide].classList.remove('active');
+    currentSlide = (currentSlide + step + slides.length) % slides.length;
+    slides[currentSlide].classList.add('active');
+  }
+
+  // Fetch a cafeteria joke from an API
+  function fetchJoke() {
+    fetch('https://icanhazdadjoke.com/', {
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('joke').textContent = data.joke;
+      })
+      .catch(error => {
+        document.getElementById('joke').textContent = 'Failed to load a joke. Please try again!';
+      });
+  }
+
+  // Load a joke when page loads
+  window.onload = fetchJoke;
+
+  // Quiz JavaScript
+  const quizQuestions = [
+    {
+      question: "Which of these beverages is typically served cold?",
+      options: ["Espresso", "Iced Tea", "Hot Chocolate", "Cappuccino"],
+      answer: 1
+    },
+    {
+      question: "What is the main ingredient in a cafeteria sandwich?",
+      options: ["Bread", "Rice", "Noodles", "Pasta"],
+      answer: 0
+    },
+    {
+      question: "Which drink is often made with steamed milk?",
+      options: ["Soda", "Smoothie", "Latte", "Iced Coffee"],
+      answer: 2
+    }
+  ];
+  let currentQuestion = 0;
+
+  function loadQuestion() {
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const resultEl = document.getElementById("result");
+    
+    // Clear previous result and options
+    resultEl.textContent = "";
+    optionsEl.innerHTML = "";
+
+    // Load the current question
+    questionEl.textContent = quizQuestions[currentQuestion].question;
+
+    // Create option buttons
+    quizQuestions[currentQuestion].options.forEach((option, index) => {
+      const button = document.createElement("button");
+      button.textContent = option;
+      button.onclick = () => checkAnswer(index);
+      optionsEl.appendChild(button);
+    });
+  }
+
+  function checkAnswer(selected) {
+    const resultEl = document.getElementById("result");
+    if (selected === quizQuestions[currentQuestion].answer) {
+      resultEl.textContent = "Correct!";
+    } else {
+      resultEl.textContent = "Incorrect. Try the next question!";
+    }
+  }
+
+  function nextQuestion() {
+    currentQuestion = (currentQuestion + 1) % quizQuestions.length;
+    loadQuestion();
+  }
+
+  // Load the first question when page loads
+  window.onload = function() {
+    fetchJoke();
+    loadQuestion();
+  };
+</script>
+
+</body>
+</html>
